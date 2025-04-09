@@ -1,42 +1,30 @@
-import { StyleSheet, View, Text } from 'react-native';
-import {
-  Calculator,
-  type BinaryOperator,
-  SafeAddition,
-  ComputationResult,
-} from '../../src';
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ExampleFfi, type RustEventHandler } from "../../src";
+import { useState } from "react";
 
-// A Rust object
-const calculator = new Calculator();
-// A Rust object implementing the Rust trait BinaryOperator
-const addOp = new SafeAddition();
-
-// A Typescript class, implementing BinaryOperator
-class SafeMultiply implements BinaryOperator {
-  perform(lhs: bigint, rhs: bigint): bigint {
-    return lhs * rhs;
-  }
-}
-const multOp = new SafeMultiply();
-
-// bigints
-const three = 3n;
-const seven = 7n;
-
-// Perform the calculation, and to get an object
-// representing the computation result.
-const computation: ComputationResult = calculator
-  .calculate(addOp, three, three)
-  .calculateMore(multOp, seven)
-  .lastResult()!;
-
-// Unpack the bigint value into a string.
-const result = computation.value.toString();
+const exampleApi = new ExampleFfi();
 
 export default function App() {
+  const [val, setVal] = useState(0);
+
+  class EventHandler implements RustEventHandler {
+    onUpdate(update: number): void {
+      console.log(`updating to ${update}`);
+      setVal(update);
+    }
+  }
+
+  const eventHandler = new EventHandler();
+  exampleApi.replaceEventHandler(eventHandler);
   return (
     <View style={styles.container}>
-      <Text>Result: {result}</Text>
+      <TouchableOpacity
+        onPress={() => {
+          exampleApi.startIdempotent();
+        }}
+      >
+        <Text>Start {val > 0 ? `${val}` : ""}</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -44,8 +32,8 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   box: {
     width: 60,
