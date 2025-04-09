@@ -1,0 +1,9 @@
+[workspace]
+
+members = [
+    "foobar",
+]
+resolver = "2"
+
+[workspace.dependencies]
+uniffi = "0.29.0"

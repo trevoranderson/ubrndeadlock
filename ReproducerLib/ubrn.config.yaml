@@ -1,0 +1,5 @@
+rust:
+  directory: rust
+  manifestPath: foobar/Cargo.toml
+android:
+ios:
